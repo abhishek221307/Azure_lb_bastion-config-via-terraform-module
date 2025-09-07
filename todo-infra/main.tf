@@ -70,11 +70,11 @@ variable "nic_config" {
   type = map(any)
   default = {
     "frontend1" = {
-      name   = "nic-frontend"
+      name   = "nic-frontend1"
       subnet = "polaris_subnet_frontend"
     }
     "frontend2" = {
-      name   = "nic-frontend"
+      name   = "nic-frontend2"
       subnet = "polaris_subnet_frontend"
     }
 
