@@ -185,7 +185,10 @@ module "loadbalancer" {
 }
 
 module "lb_nic_association" {
-  for_each              = var.nic_config
+    for_each = {
+    for k, v in var.nic_config : k => v
+    if length(regexall("frontend", k)) > 0
+  }
   depends_on            = [module.loadbalancer, module.virtual_machine]
   source                = "../module/azurerm_nic_lb_association"
   rg_name               = "polaris_rgroup"
