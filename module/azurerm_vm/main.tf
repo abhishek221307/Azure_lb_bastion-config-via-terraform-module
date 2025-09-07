@@ -26,3 +26,6 @@ resource "azurerm_linux_virtual_machine" "polaris" {
   }
    custom_data = var.custom_data
 }
+
+
+

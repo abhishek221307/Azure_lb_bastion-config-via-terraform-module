@@ -34,3 +34,5 @@ variable "sku" {
 variable "custom_data" {
   type        = string
 }
+
+

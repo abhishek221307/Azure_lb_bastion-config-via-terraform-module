@@ -64,23 +64,24 @@ module "bastion" {
 }
 
 
-
-
 variable "nic_config" {
   type = map(any)
   default = {
     "frontend1" = {
-      name   = "nic-frontend"
-      subnet = "polaris_subnet_frontend"
+      name     = "nic-frontend1"
+      subnet   = "polaris_subnet_frontend"
+      nsg_name = "frontend-nsg"
     }
     "frontend2" = {
-      name   = "nic-frontend"
-      subnet = "polaris_subnet_frontend"
+      name     = "nic-frontend2"
+      subnet   = "polaris_subnet_frontend"
+      nsg_name = "frontend-nsg"
     }
 
     "backend" = {
-      name   = "nic-backend"
-      subnet = "polaris_subnet_backend"
+      name     = "nic-backend"
+      subnet   = "polaris_subnet_backend"
+      nsg_name = "backend-nsg"
     }
   }
 }
@@ -93,6 +94,7 @@ module "nic" {
   name                 = each.value.name
   location             = "North Europe"
   rg_name              = "polaris_rgroup"
+  nsg_name             = each.value.nsg_name
   subnet               = each.value.subnet
   virtual_network_name = "polaris_vnet"
 
@@ -108,6 +110,7 @@ variable "vm_config" {
       publisher      = "Canonical"
       offer          = "0001-com-ubuntu-server-jammy"
       sku            = "22_04-lts"
+      nsg_name       = "frontend-nsg"
       custom_data    = <<-EOF
         #!/bin/bash
         sudo apt update
@@ -185,7 +188,10 @@ module "loadbalancer" {
 }
 
 module "lb_nic_association" {
-  for_each              = var.nic_config
+  for_each = {
+    for k, v in var.nic_config : k => v
+    if length(regexall("frontend", k)) > 0
+  }
   depends_on            = [module.loadbalancer, module.virtual_machine]
   source                = "../module/azurerm_nic_lb_association"
   rg_name               = "polaris_rgroup"
